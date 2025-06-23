@@ -1,3 +1,6 @@
+# Environment configuration
+src/main/resources/application-dev.properties
+
 # Compiled class file
 *.class
 
