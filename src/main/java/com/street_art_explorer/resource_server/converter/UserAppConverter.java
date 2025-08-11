@@ -2,6 +2,7 @@ package com.street_art_explorer.resource_server.converter;
 
 import org.springframework.stereotype.Component;
 
+import com.street_art_explorer.resource_server.dto.PublicUserDto;
 import com.street_art_explorer.resource_server.dto.UserAppDto;
 import com.street_art_explorer.resource_server.entity.UserApp;
 
@@ -30,5 +31,17 @@ public class UserAppConverter {
 		user.setUpdatedAt(userAppDto.getUpdatedAt());
 
 		return user;
+	}
+
+	public PublicUserDto userAppToPublicUserDto(UserApp userApp) {
+		PublicUserDto publicUserDto = new PublicUserDto();
+
+		publicUserDto.setId(userApp.getId());
+		publicUserDto.setUsername(userApp.getUsername());
+		publicUserDto.setFirstName(userApp.getFirstName());
+		publicUserDto.setLastName(userApp.getLastName());
+		publicUserDto.setBirthDate(userApp.getBirthDate());
+
+		return publicUserDto;
 	}
 }
