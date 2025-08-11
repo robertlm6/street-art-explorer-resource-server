@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import com.street_art_explorer.resource_server.converter.UserAppConverter;
+import com.street_art_explorer.resource_server.dto.PublicUserDto;
 import com.street_art_explorer.resource_server.dto.UserAppDto;
 import com.street_art_explorer.resource_server.dto.UserAppPatchRequest;
 import com.street_art_explorer.resource_server.entity.UserApp;
@@ -107,5 +108,15 @@ public class UserAppServiceImpl implements UserAppService {
 		userApp = userAppRepository.save(userApp);
 
 		return userAppConverter.userAppToDto(userApp);
+	}
+
+	@Override
+	@Transactional
+	public PublicUserDto getPublicUserById(final Integer id) {
+
+		UserApp userApp = userAppRepository.findById(id)
+				.orElseThrow(() -> new NoSuchElementException("UserApp not found for id: " + id));
+		
+		return userAppConverter.userAppToPublicUserDto(userApp);
 	}
 }

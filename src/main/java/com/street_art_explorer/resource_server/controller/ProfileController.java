@@ -19,7 +19,7 @@ import com.street_art_explorer.resource_server.service.UserAppService;
 @RestController
 public class ProfileController {
 
-	private UserAppService userAppService;
+	private final UserAppService userAppService;
 
 	public ProfileController(UserAppService userAppService) {
 		this.userAppService = userAppService;
