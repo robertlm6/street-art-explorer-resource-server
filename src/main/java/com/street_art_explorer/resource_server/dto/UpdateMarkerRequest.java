@@ -11,8 +11,10 @@ import lombok.NoArgsConstructor;
 public class UpdateMarkerRequest {
     @Size(max = 120)
     private String title;
+    
     @Size(max = 4000)
     private String description;
+
     private Double lat;
     private Double lng;
     private String address;
