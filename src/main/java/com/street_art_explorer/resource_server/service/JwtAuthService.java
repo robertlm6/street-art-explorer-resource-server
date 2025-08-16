@@ -3,5 +3,5 @@ package com.street_art_explorer.resource_server.service;
 import org.springframework.security.oauth2.jwt.Jwt;
 
 public interface JwtAuthService {
-    public Integer requireAuthId(Jwt jwt);
+    Integer requireAuthId(Jwt jwt);
 }

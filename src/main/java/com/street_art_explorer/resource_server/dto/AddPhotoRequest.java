@@ -11,10 +11,13 @@ import lombok.NoArgsConstructor;
 public class AddPhotoRequest {
     @NotBlank
     private String publicId;
+
     @NotBlank
     private String url;
+
     @NotBlank
     private String secureUrl;
+
     private String format;
     private Integer width;
     private Integer height;

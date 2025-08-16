@@ -1,17 +1,12 @@
 package com.street_art_explorer.resource_server.entity;
 
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "marker_ratings")
@@ -31,6 +26,7 @@ public class MarkerRating {
 
     @Column(nullable = false)
     private Short score;
+
     private LocalDateTime createdAt;
 
     @PrePersist
