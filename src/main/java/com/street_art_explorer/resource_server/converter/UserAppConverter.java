@@ -1,47 +1,63 @@
 package com.street_art_explorer.resource_server.converter;
 
-import org.springframework.stereotype.Component;
-
 import com.street_art_explorer.resource_server.dto.PublicUserDto;
 import com.street_art_explorer.resource_server.dto.UserAppDto;
 import com.street_art_explorer.resource_server.entity.UserApp;
-
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @Component
 @NoArgsConstructor
 public class UserAppConverter {
 
     public UserAppDto userAppToDto(UserApp userApp) {
-        return new UserAppDto(userApp.getAuthServerUserId(), userApp.getUsername(), userApp.getEmail(),
-                userApp.getFirstName(), userApp.getLastName(), userApp.getBirthDate(), userApp.getCreatedAt(),
-                userApp.getUpdatedAt());
+        if (userApp == null) return null;
+
+        return UserAppDto.builder()
+                .authServerUserId(userApp.getAuthServerUserId())
+                .username(userApp.getUsername())
+                .email(userApp.getEmail())
+                .firstName(userApp.getFirstName())
+                .lastName(userApp.getLastName())
+                .birthDate(userApp.getBirthDate())
+                .bio(userApp.getBio())
+                .avatarUrl(userApp.getAvatarUrl())
+                .avatarPublicId(userApp.getAvatarPublicId())
+                .createdAt(userApp.getCreatedAt())
+                .updatedAt(userApp.getUpdatedAt())
+                .build();
     }
 
     public UserApp userDtoToUserApp(UserAppDto userAppDto) {
-        UserApp user = new UserApp();
+        if (userAppDto == null) return null;
 
-        user.setAuthServerUserId(userAppDto.getAuthServerUserId());
-        user.setUsername(userAppDto.getUsername());
-        user.setEmail(userAppDto.getEmail());
-        user.setFirstName(userAppDto.getFirstName());
-        user.setLastName(userAppDto.getLastName());
-        user.setBirthDate(userAppDto.getBirthDate());
-        user.setCreatedAt(userAppDto.getCreatedAt());
-        user.setUpdatedAt(userAppDto.getUpdatedAt());
-
-        return user;
+        return UserApp.builder()
+                .authServerUserId(userAppDto.getAuthServerUserId())
+                .username(userAppDto.getUsername())
+                .email(userAppDto.getEmail())
+                .firstName(userAppDto.getFirstName())
+                .lastName(userAppDto.getLastName())
+                .birthDate(userAppDto.getBirthDate())
+                .bio(userAppDto.getBio())
+                .avatarUrl(userAppDto.getAvatarUrl())
+                .avatarPublicId(userAppDto.getAvatarPublicId())
+                .createdAt(userAppDto.getCreatedAt())
+                .updatedAt(userAppDto.getUpdatedAt())
+                .build();
     }
 
     public PublicUserDto userAppToPublicUserDto(UserApp userApp) {
-        PublicUserDto publicUserDto = new PublicUserDto();
+        if (userApp == null) return null;
 
-        publicUserDto.setId(userApp.getId());
-        publicUserDto.setUsername(userApp.getUsername());
-        publicUserDto.setFirstName(userApp.getFirstName());
-        publicUserDto.setLastName(userApp.getLastName());
-        publicUserDto.setBirthDate(userApp.getBirthDate());
-
-        return publicUserDto;
+        return PublicUserDto.builder()
+                .id(userApp.getId())
+                .username(userApp.getUsername())
+                .firstName(userApp.getFirstName())
+                .lastName(userApp.getLastName())
+                .birthDate(userApp.getBirthDate())
+                .bio(userApp.getBio())
+                .avatarUrl(userApp.getAvatarUrl())
+                .avatarPublicId(userApp.getAvatarPublicId())
+                .build();
     }
 }
