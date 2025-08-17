@@ -2,6 +2,7 @@ package com.street_art_explorer.resource_server.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
+@Builder
 public class UserApp {
 
     @Id
@@ -27,6 +29,15 @@ public class UserApp {
 
     @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(columnDefinition = "text")
+    private String bio;
+
+    @Column(name = "avatar_url", columnDefinition = "text")
+    private String avatarUrl;
+
+    @Column(name = "avatar_public_id")
+    private String avatarPublicId;
 
     private String firstName;
     private String lastName;
