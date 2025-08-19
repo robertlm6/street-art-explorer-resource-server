@@ -1,5 +1,13 @@
 package com.street_art_explorer.resource_server.service.implementation;
 
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
 import com.street_art_explorer.resource_server.converter.MarkerConverter;
 import com.street_art_explorer.resource_server.dto.CreateMarkerRequest;
 import com.street_art_explorer.resource_server.dto.MarkerDto;
@@ -9,15 +17,11 @@ import com.street_art_explorer.resource_server.entity.MarkerPhoto;
 import com.street_art_explorer.resource_server.repository.MarkerPhotoRepository;
 import com.street_art_explorer.resource_server.repository.MarkerRatingRepository;
 import com.street_art_explorer.resource_server.repository.MarkerRepository;
+import com.street_art_explorer.resource_server.service.JwtAuthService;
 import com.street_art_explorer.resource_server.service.MarkerService;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class MarkerServiceImpl implements MarkerService {
     private final MarkerRepository markerRepository;
     private final MarkerPhotoRepository markerPhotoRepository;
     private final MarkerRatingRepository markerRatingRepository;
+
+    private final JwtAuthService jwtAuthService;
 
     private final MarkerConverter markerConverter;
 
@@ -96,7 +102,12 @@ public class MarkerServiceImpl implements MarkerService {
                 .orElseThrow(() -> new EntityNotFoundException("Marker not found for id " + markerId));
 
         List<MarkerPhoto> photos = markerPhotoRepository.findByMarkerIdOrderByIdAsc(markerId);
-        return markerConverter.markerToMarkerDto(marker, photos);
+
+        Integer currentAuthId = jwtAuthService.getOptionalAuthId().orElse(null);
+
+        MarkerDto markerDto = markerConverter.markerToMarkerDto(marker, photos);
+        markerDto.setOwnedByMe(Objects.equals(markerDto.getAuthServerUserId(), currentAuthId));
+        return markerDto;
     }
 
     @Override
@@ -104,7 +115,12 @@ public class MarkerServiceImpl implements MarkerService {
     public List<MarkerDto> getBBoxMarkers(double minLat, double maxLat, double minLng, double maxLng, int limit) {
         int lim = Math.max(1, Math.min(limit, 500));
         List<Marker> markers = markerRepository.findBBoxMarkers(minLat, maxLat, minLng, maxLng, lim);
-        return markerConverter.markersToMarkerDtos(markers);
+
+        Integer currentAuthId = jwtAuthService.getOptionalAuthId().orElse(null);
+
+        List<MarkerDto> markerDtos = markerConverter.markersToMarkerDtos(markers);
+        markerDtos.forEach(dto -> dto.setOwnedByMe(Objects.equals(dto.getAuthServerUserId(), currentAuthId)));
+        return markerDtos;
     }
 
     @Override

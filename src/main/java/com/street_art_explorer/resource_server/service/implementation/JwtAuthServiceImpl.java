@@ -1,5 +1,9 @@
 package com.street_art_explorer.resource_server.service.implementation;
 
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
@@ -21,5 +25,15 @@ public class JwtAuthServiceImpl implements JwtAuthService {
             throw new IllegalStateException("No 'id' claim present");
         }
         return authId.intValue();
+    }
+
+    @Override
+    public Optional<Integer> getOptionalAuthId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof Jwt jwt)) {
+            return Optional.empty();
+        }
+        Number n = jwt.getClaim("id");
+        return Optional.ofNullable(n).map(Number::intValue);
     }
 }

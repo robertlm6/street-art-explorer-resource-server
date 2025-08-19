@@ -26,4 +26,5 @@ public class MarkerDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<MarkerPhotoDto> photos;
+    private Boolean ownedByMe;
 }
