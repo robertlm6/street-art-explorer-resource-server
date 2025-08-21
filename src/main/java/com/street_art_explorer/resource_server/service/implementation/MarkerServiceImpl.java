@@ -71,7 +71,7 @@ public class MarkerServiceImpl implements MarkerService {
     @Override
     @Transactional
     public MarkerDto updateMarker(Integer authId, Integer markerId, UpdateMarkerRequest updateMarkerRequest) {
-        Marker marker = requireOwned(authId, markerId);
+        Marker marker = requireOwned(markerId, authId);
 
         if (updateMarkerRequest.getTitle() != null) {
             marker.setTitle(updateMarkerRequest.getTitle());
@@ -134,7 +134,7 @@ public class MarkerServiceImpl implements MarkerService {
     @Override
     @Transactional
     public void deleteMarker(Integer authId, Integer markerId) {
-        Marker marker = requireOwned(authId, markerId);
+        Marker marker = requireOwned(markerId, authId);
         markerRepository.deleteById(marker.getId());
     }
 
