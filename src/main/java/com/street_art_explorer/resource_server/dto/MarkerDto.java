@@ -1,13 +1,13 @@
 package com.street_art_explorer.resource_server.dto;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,4 +27,8 @@ public class MarkerDto {
     private LocalDateTime updatedAt;
     private List<MarkerPhotoDto> photos;
     private Boolean ownedByMe;
+
+    private OwnerDto owner;
+    private Integer coverPhotoId;
+    private String coverPhotoUrl;
 }

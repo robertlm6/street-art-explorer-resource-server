@@ -14,6 +14,7 @@ public class UserAppConverter {
         if (userApp == null) return null;
 
         return UserAppDto.builder()
+                .id(userApp.getId())
                 .authServerUserId(userApp.getAuthServerUserId())
                 .username(userApp.getUsername())
                 .email(userApp.getEmail())
@@ -32,6 +33,7 @@ public class UserAppConverter {
         if (userAppDto == null) return null;
 
         return UserApp.builder()
+                .id(userAppDto.getId())
                 .authServerUserId(userAppDto.getAuthServerUserId())
                 .username(userAppDto.getUsername())
                 .email(userAppDto.getEmail())
@@ -56,6 +58,7 @@ public class UserAppConverter {
                 .lastName(userApp.getLastName())
                 .birthDate(userApp.getBirthDate())
                 .bio(userApp.getBio())
+                .createdAt(userApp.getCreatedAt())
                 .avatarUrl(userApp.getAvatarUrl())
                 .avatarPublicId(userApp.getAvatarPublicId())
                 .build();

@@ -13,7 +13,7 @@ import java.util.Date;
 @Data
 @Builder
 public class UserAppDto {
-
+    private Integer id;
     private Integer authServerUserId;
     private String username;
     private String email;

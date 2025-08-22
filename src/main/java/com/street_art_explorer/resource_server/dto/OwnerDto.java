@@ -5,22 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class PublicUserDto {
-
+public class OwnerDto {
     private Integer id;
     private String username;
-    private String firstName;
-    private String lastName;
-    private Date birthDate;
-    private String bio;
-    private LocalDateTime createdAt;
     private String avatarUrl;
-    private String avatarPublicId;
 }
