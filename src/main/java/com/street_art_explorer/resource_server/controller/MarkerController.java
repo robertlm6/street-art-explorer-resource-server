@@ -78,6 +78,15 @@ public class MarkerController {
         return ResponseEntity.noContent().build();
     }
 
+    @PutMapping("/{id}/cover/{photoId}")
+    public ResponseEntity<Void> setCover(@AuthenticationPrincipal Jwt jwt,
+                                         @PathVariable Integer id,
+                                         @PathVariable Integer photoId) {
+        Integer userAuthId = jwtAuthService.requireAuthId(jwt);
+        markerService.setCover(userAuthId, id, photoId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/{id}/photos")
     public ResponseEntity<MarkerPhotoDto> addPhoto(@AuthenticationPrincipal Jwt jwt,
                                                    @PathVariable Integer id,

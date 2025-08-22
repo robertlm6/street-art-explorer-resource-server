@@ -38,4 +38,6 @@ public interface MarkerRepository extends JpaRepository<Marker, Integer> {
     List<Marker> findNearMarkers(@Param("lat0") double lat0,
                                  @Param("lng0") double lng0,
                                  @Param("limit") int limit);
+
+    List<Marker> findByAuthServerUserIdOrderByCreatedAtDesc(Integer authServerUserId);
 }

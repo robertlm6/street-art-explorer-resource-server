@@ -20,5 +20,9 @@ public interface MarkerService {
 
     List<MarkerDto> getNearMarkers(double lat, double lng, int limit);
 
+    List<MarkerDto> getUserMarkersBrief(Integer userId, int limit);
+
     void deleteMarker(Integer authId, Integer markerId);
+
+    void setCover(Integer authId, Integer markerId, Integer photoId);
 }
