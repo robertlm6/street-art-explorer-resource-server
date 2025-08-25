@@ -9,9 +9,9 @@ public interface UserRankingRow {
 
     Integer getAuthServerUserId();
 
-    Long getMarkersCreated();
+    Integer getMarkersCreated();
 
-    Long getRatingsGiven();
+    Integer getRatingsGiven();
 
     Double getScore();
 }
