@@ -27,10 +27,6 @@ public class MarkerRatingServiceImpl implements MarkerRatingService {
     @Override
     @Transactional
     public RatingSummary createRating(Integer authId, Integer markerId, short score) {
-        if (score < 1 || score > 5) {
-            throw new IllegalArgumentException("Score must be between 1 and 5");
-        }
-
         Marker marker = markerRepository.findById(markerId)
                 .orElseThrow(() -> new EntityNotFoundException("Marker not found for id " + markerId));
 
@@ -40,6 +36,7 @@ public class MarkerRatingServiceImpl implements MarkerRatingService {
 
         MarkerRating markerRating = markerRatingRepository.findByMarkerIdAndAuthServerUserId(markerId, authId)
                 .orElse(new MarkerRating(markerId, authId, score, null));
+
         markerRating.setScore(score);
         markerRatingRepository.saveAndFlush(markerRating);
 
@@ -47,12 +44,14 @@ public class MarkerRatingServiceImpl implements MarkerRatingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Short> getRating(Integer authId, Integer markerId) {
         return markerRatingRepository.findByMarkerIdAndAuthServerUserId(markerId, authId)
                 .map(MarkerRating::getScore);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public RatingSummary getRatingSummary(Integer markerId) {
         Marker marker = markerRepository.findById(markerId)
                 .orElseThrow(() -> new EntityNotFoundException("Marker not found for id " + markerId));

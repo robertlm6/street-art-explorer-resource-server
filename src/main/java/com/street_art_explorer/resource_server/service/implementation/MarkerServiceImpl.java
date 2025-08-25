@@ -1,13 +1,16 @@
 package com.street_art_explorer.resource_server.service.implementation;
 
-import com.street_art_explorer.resource_server.converter.MarkerConverter;
-import com.street_art_explorer.resource_server.converter.UserAppConverter;
-import com.street_art_explorer.resource_server.dto.*;
+import com.street_art_explorer.resource_server.dto.CreateMarkerRequest;
+import com.street_art_explorer.resource_server.dto.MarkerDto;
+import com.street_art_explorer.resource_server.dto.UpdateMarkerRequest;
+import com.street_art_explorer.resource_server.dto.UserSummaryDto;
 import com.street_art_explorer.resource_server.entity.Marker;
 import com.street_art_explorer.resource_server.entity.MarkerPhoto;
 import com.street_art_explorer.resource_server.entity.UserApp;
+import com.street_art_explorer.resource_server.mapper.MarkerMapper;
+import com.street_art_explorer.resource_server.mapper.MarkerPhotoMapper;
+import com.street_art_explorer.resource_server.mapper.UserMapper;
 import com.street_art_explorer.resource_server.repository.MarkerPhotoRepository;
-import com.street_art_explorer.resource_server.repository.MarkerRatingRepository;
 import com.street_art_explorer.resource_server.repository.MarkerRepository;
 import com.street_art_explorer.resource_server.repository.UserAppRepository;
 import com.street_art_explorer.resource_server.service.JwtAuthService;
@@ -28,13 +31,13 @@ public class MarkerServiceImpl implements MarkerService {
 
     private final MarkerRepository markerRepository;
     private final MarkerPhotoRepository markerPhotoRepository;
-    private final MarkerRatingRepository markerRatingRepository;
+    private final UserAppRepository userAppRepository;
 
     private final JwtAuthService jwtAuthService;
 
-    private final MarkerConverter markerConverter;
-    private final UserAppRepository userAppRepository;
-    private final UserAppConverter userAppConverter;
+    private final MarkerMapper markerMapper;
+    private final UserMapper userMapper;
+    private final MarkerPhotoMapper markerPhotoMapper;
 
     @Transactional
     public Marker requireOwned(Integer markerId, Integer authorId) {
@@ -51,22 +54,22 @@ public class MarkerServiceImpl implements MarkerService {
     @Override
     @Transactional
     public MarkerDto createMarker(Integer authId, CreateMarkerRequest createMarkerRequest) {
-        if (createMarkerRequest.getLat() == null || createMarkerRequest.getLng() == null ||
-                createMarkerRequest.getLat() < -90 || createMarkerRequest.getLat() > 90 ||
-                createMarkerRequest.getLng() < -180 || createMarkerRequest.getLng() > 180) {
-            throw new IllegalArgumentException("Invalid coordinates");
-        }
-
         Marker marker = new Marker();
         marker.setAuthServerUserId(authId);
-        marker.setTitle(createMarkerRequest.getTitle());
-        marker.setDescription(createMarkerRequest.getDescription());
-        marker.setLat(createMarkerRequest.getLat());
-        marker.setLng(createMarkerRequest.getLng());
-        marker.setAddress(createMarkerRequest.getAddress());
+        marker.setTitle(createMarkerRequest.title());
+        marker.setDescription(createMarkerRequest.description());
+        marker.setLat(createMarkerRequest.lat());
+        marker.setLng(createMarkerRequest.lng());
+        marker.setAddress(createMarkerRequest.address());
 
         markerRepository.save(marker);
-        return markerConverter.markerToMarkerDto(marker, List.of());
+
+        UserApp owner = userAppRepository.findById(authId).orElse(null);
+        UserSummaryDto ownerSummary = owner != null ? userMapper.toUserSummaryDto(owner) : null;
+
+        MarkerDto markerDto = markerMapper.toMarkerDto(marker, authId, null, ownerSummary);
+        markerDto.setPhotos(Collections.emptyList());
+        return markerDto;
     }
 
     @Override
@@ -74,26 +77,33 @@ public class MarkerServiceImpl implements MarkerService {
     public MarkerDto updateMarker(Integer authId, Integer markerId, UpdateMarkerRequest updateMarkerRequest) {
         Marker marker = requireOwned(markerId, authId);
 
-        if (updateMarkerRequest.getTitle() != null) {
-            marker.setTitle(updateMarkerRequest.getTitle());
+        if (updateMarkerRequest.title() != null) {
+            marker.setTitle(updateMarkerRequest.title());
         }
-        if (updateMarkerRequest.getDescription() != null) {
-            marker.setDescription(updateMarkerRequest.getDescription());
+        if (updateMarkerRequest.description() != null) {
+            marker.setDescription(updateMarkerRequest.description());
         }
-        if (updateMarkerRequest.getLat() != null) {
-            marker.setLat(updateMarkerRequest.getLat());
+        if (updateMarkerRequest.lat() != null) {
+            marker.setLat(updateMarkerRequest.lat());
         }
-        if (updateMarkerRequest.getLng() != null) {
-            marker.setLng(updateMarkerRequest.getLng());
+        if (updateMarkerRequest.lng() != null) {
+            marker.setLng(updateMarkerRequest.lng());
         }
-        if (updateMarkerRequest.getAddress() != null) {
-            marker.setAddress(updateMarkerRequest.getAddress());
+        if (updateMarkerRequest.address() != null) {
+            marker.setAddress(updateMarkerRequest.address());
         }
 
         markerRepository.save(marker);
-        List<MarkerPhoto> photos = markerPhotoRepository.findByMarkerIdOrderByIdAsc(markerId);
 
-        return markerConverter.markerToMarkerDto(marker, photos);
+        List<MarkerPhoto> photos = markerPhotoRepository.findByMarkerIdOrderByIdAsc(markerId);
+        MarkerPhoto cover = pickCoverPhoto(marker, photos);
+
+        UserApp owner = userAppRepository.findByAuthServerUserId(marker.getAuthServerUserId()).orElse(null);
+        UserSummaryDto ownerSummary = owner != null ? userMapper.toUserSummaryDto(owner) : null;
+
+        MarkerDto markerDto = markerMapper.toMarkerDto(marker, authId, cover, ownerSummary);
+        markerDto.setPhotos(photos.stream().map(markerPhotoMapper::toMarkerPhotoDto).toList());
+        return markerDto;
     }
 
     @Override
@@ -103,14 +113,15 @@ public class MarkerServiceImpl implements MarkerService {
                 .orElseThrow(() -> new EntityNotFoundException("Marker not found for id " + markerId));
 
         List<MarkerPhoto> photos = markerPhotoRepository.findByMarkerIdOrderByIdAsc(markerId);
+        MarkerPhoto cover = pickCoverPhoto(marker, photos);
 
         Integer currentAuthId = jwtAuthService.getOptionalAuthId().orElse(null);
 
         UserApp owner = userAppRepository.findByAuthServerUserId(marker.getAuthServerUserId()).orElse(null);
-        PublicUserDto ownerDto = owner == null ? null : userAppConverter.userAppToPublicUserDto(owner);
+        UserSummaryDto ownerSummary = owner != null ? userMapper.toUserSummaryDto(owner) : null;
 
-        MarkerDto markerDto = markerConverter.markerToMarkerDto(marker, photos, ownerDto);
-        markerDto.setOwnedByMe(Objects.equals(markerDto.getAuthServerUserId(), currentAuthId));
+        MarkerDto markerDto = markerMapper.toMarkerDto(marker, currentAuthId, cover, ownerSummary);
+        markerDto.setPhotos(photos.stream().map(markerPhotoMapper::toMarkerPhotoDto).toList());
         return markerDto;
     }
 
@@ -118,29 +129,18 @@ public class MarkerServiceImpl implements MarkerService {
     @Transactional(readOnly = true)
     public List<MarkerDto> getBBoxMarkers(
             double minLat, double maxLat, double minLng, double maxLng, int limit) {
-        int lim = Math.max(1, Math.min(limit, 200));
-        List<Marker> markers = markerRepository.findBBoxMarkers(minLat, maxLat, minLng, maxLng, lim);
+        List<Marker> markers = markerRepository.findBBoxMarkers(minLat, maxLat, minLng, maxLng, limit);
         return assembleBriefDtos(markers);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<MarkerDto> getNearMarkers(double lat, double lng, int limit) {
-        int lim = Math.max(1, Math.min(limit, 200));
-        List<Marker> markers = markerRepository.findNearMarkers(lat, lng, lim);
-        return markerConverter.markersToMarkerDtos(markers);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<MarkerDto> getUserMarkersBrief(Integer userId, int limit) {
-        int lim = Math.max(1, Math.min(limit, 200));
-
         UserApp user = userAppRepository.findById(userId)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
 
         List<Marker> all = markerRepository.findByAuthServerUserIdOrderByCreatedAtDesc(user.getAuthServerUserId());
-        List<Marker> slice = all.size() > lim ? all.subList(0, lim) : all;
+        List<Marker> slice = all.size() > limit ? all.subList(0, limit) : all;
         return assembleBriefDtos(slice);
     }
 
@@ -171,11 +171,11 @@ public class MarkerServiceImpl implements MarkerService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
 
-        var userApps = userAppRepository.findByAuthServerUserIdIn(authIds);
+        List<UserApp> userApps = userAppRepository.findByAuthServerUserIdIn(authIds);
 
-        Map<Integer, PublicUserDto> ownersByAuthId = new HashMap<>();
-        for (var ua : userApps) {
-            ownersByAuthId.put(ua.getAuthServerUserId(), userAppConverter.userAppToPublicUserDto(ua));
+        Map<Integer, UserSummaryDto> ownersByAuthId = new HashMap<>();
+        for (UserApp userApp : userApps) {
+            ownersByAuthId.put(userApp.getAuthServerUserId(), userMapper.toUserSummaryDto(userApp));
         }
 
         Set<Integer> markerIds = markers.stream().map(Marker::getId).collect(Collectors.toSet());
@@ -183,52 +183,35 @@ public class MarkerServiceImpl implements MarkerService {
                 .findByMarkerIdInOrderByMarkerIdAscPositionAscIdAsc(markerIds);
 
         Map<Integer, List<MarkerPhoto>> photosByMarkerId = new HashMap<>();
-        for (MarkerPhoto p : photos) {
-            photosByMarkerId.computeIfAbsent(p.getMarker().getId(), k -> new ArrayList<>()).add(p);
+        for (MarkerPhoto markerPhoto : photos) {
+            photosByMarkerId.computeIfAbsent(markerPhoto.getMarker().getId(), k -> new ArrayList<>()).add(markerPhoto);
         }
 
         Map<Integer, MarkerPhoto> coverByMarkerId = new HashMap<>();
-        for (Marker m : markers) {
-            List<MarkerPhoto> list = photosByMarkerId.getOrDefault(m.getId(), List.of());
-            if (list.isEmpty()) continue;
-
-            MarkerPhoto cover = null;
-            Integer coverId = m.getCoverPhotoId();
-            if (coverId != null) {
-                cover = list.stream().filter(p -> coverId.equals(p.getId())).findFirst().orElse(null);
-            }
-            if (cover == null) cover = list.get(0);
-            coverByMarkerId.put(m.getId(), cover);
+        for (Marker marker : markers) {
+            coverByMarkerId.put(marker.getId(), pickCoverPhoto(marker, photosByMarkerId.get(marker.getId())));
         }
 
         List<MarkerDto> result = new ArrayList<>(markers.size());
-        for (Marker m : markers) {
-            PublicUserDto ownerPublic = ownersByAuthId.get(m.getAuthServerUserId());
+        for (Marker marker : markers) {
+            UserSummaryDto ownerSummary = ownersByAuthId.get(marker.getAuthServerUserId());
+            MarkerPhoto cover = coverByMarkerId.get(marker.getId());
 
-            UserSummaryDto ownerDto = null;
-            if (ownerPublic != null) {
-                ownerDto = new UserSummaryDto(ownerPublic.getId(), ownerPublic.getUsername(), ownerPublic.getAvatarUrl());
-            }
-
-            MarkerPhoto cover = coverByMarkerId.get(m.getId());
-            String coverUrl = null;
-            Integer coverId = null;
-            if (cover != null) {
-                coverId = cover.getId();
-                coverUrl = cover.getThumbnailUrl() != null ? cover.getThumbnailUrl()
-                        : cover.getSecureUrl() != null ? cover.getSecureUrl()
-                        : cover.getUrl();
-            }
-
-            MarkerDto dto = markerConverter.markerToMarkerDtoBrief(m);
-            dto.setOwner(ownerDto);
-            dto.setCoverPhotoId(coverId);
-            dto.setCoverPhotoUrl(coverUrl);
-            dto.setOwnedByMe(Objects.equals(m.getAuthServerUserId(), currentAuthId));
-            dto.setPhotos(null);
-
-            result.add(dto);
+            MarkerDto markerDto = markerMapper.toMarkerDto(marker, currentAuthId, cover, ownerSummary);
+            markerDto.setPhotos(null);
+            result.add(markerDto);
         }
         return result;
+    }
+
+    private MarkerPhoto pickCoverPhoto(Marker marker, List<MarkerPhoto> photos) {
+        if (photos == null || photos.isEmpty()) return null;
+        Integer coverId = marker.getCoverPhotoId();
+        if (coverId != null) {
+            for (MarkerPhoto p : photos) {
+                if (coverId.equals(p.getId())) return p;
+            }
+        }
+        return photos.get(0);
     }
 }

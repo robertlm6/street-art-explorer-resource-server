@@ -2,11 +2,11 @@ package com.street_art_explorer.resource_server.service.implementation;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
-import com.street_art_explorer.resource_server.converter.MarkerPhotoConverter;
 import com.street_art_explorer.resource_server.dto.AddPhotoRequest;
 import com.street_art_explorer.resource_server.dto.MarkerPhotoDto;
 import com.street_art_explorer.resource_server.entity.Marker;
 import com.street_art_explorer.resource_server.entity.MarkerPhoto;
+import com.street_art_explorer.resource_server.mapper.MarkerPhotoMapper;
 import com.street_art_explorer.resource_server.repository.MarkerPhotoRepository;
 import com.street_art_explorer.resource_server.service.MarkerPhotoService;
 import com.street_art_explorer.resource_server.service.MarkerService;
@@ -22,7 +22,7 @@ public class MarkerPhotoServiceImpl implements MarkerPhotoService {
 
     private final MarkerPhotoRepository markerPhotoRepository;
 
-    private final MarkerPhotoConverter markerPhotoConverter;
+    private final MarkerPhotoMapper markerPhotoMapper;
 
     private final MarkerService markerService;
 
@@ -47,7 +47,7 @@ public class MarkerPhotoServiceImpl implements MarkerPhotoService {
                 .build();
 
         markerPhotoRepository.save(markerPhoto);
-        return markerPhotoConverter.markerPhotoToMarkerPhotoDto(markerPhoto);
+        return markerPhotoMapper.toMarkerPhotoDto(markerPhoto);
     }
 
     @Override

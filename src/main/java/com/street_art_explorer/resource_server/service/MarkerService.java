@@ -17,9 +17,7 @@ public interface MarkerService {
     MarkerDto getMarker(Integer markerId);
 
     List<MarkerDto> getBBoxMarkers(double minLat, double maxLat, double minLng, double maxLng, int limit);
-
-    List<MarkerDto> getNearMarkers(double lat, double lng, int limit);
-
+    
     List<MarkerDto> getUserMarkersBrief(Integer userId, int limit);
 
     void deleteMarker(Integer authId, Integer markerId);
