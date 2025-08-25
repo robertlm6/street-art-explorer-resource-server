@@ -4,6 +4,7 @@ import com.street_art_explorer.resource_server.dto.FeedAndRankingResponse;
 import com.street_art_explorer.resource_server.dto.MarkerRankingItem;
 import com.street_art_explorer.resource_server.dto.UserRankingItem;
 import com.street_art_explorer.resource_server.dto.enums.Period;
+import com.street_art_explorer.resource_server.mapper.RankingMapper;
 import com.street_art_explorer.resource_server.projection.MarkerRankingRow;
 import com.street_art_explorer.resource_server.projection.UserRankingRow;
 import com.street_art_explorer.resource_server.repository.RankingRepository;
@@ -21,23 +22,14 @@ public class RankingServiceImpl implements RankingService {
 
     private final RankingRepository rankingRepository;
 
+    private final RankingMapper rankingMapper;
+
     @Override
     public FeedAndRankingResponse<UserRankingItem> getUserRanking(Period period, int limit, int offset) {
         LocalDateTime since = sinceTs(period);
         List<UserRankingRow> rows = rankingRepository.findUserRanking(since, limit, offset);
 
-        var items = rows.stream()
-                .map(r -> new UserRankingItem(
-                        r.getUserId(),
-                        r.getUsername(),
-                        r.getAvatarUrl(),
-                        r.getAuthServerUserId(),
-                        r.getMarkersCreated() == null ? 0 : r.getMarkersCreated(),
-                        r.getRatingsGiven() == null ? 0 : r.getRatingsGiven(),
-                        r.getScore() == null ? 0.0 : r.getScore()
-                ))
-                .toList();
-
+        List<UserRankingItem> items = rankingMapper.toUserItems(rows);
         Integer nextOffset = items.size() < limit ? null : (offset + limit);
         return new FeedAndRankingResponse<>(items, nextOffset);
     }
@@ -47,18 +39,7 @@ public class RankingServiceImpl implements RankingService {
         LocalDateTime since = sinceTs(period);
         List<MarkerRankingRow> rows = rankingRepository.findMarkerRanking(since, limit, offset);
 
-        var items = rows.stream().map(r ->
-                new MarkerRankingItem(
-                        r.getMarkerId(),
-                        r.getTitle(),
-                        r.getLat(),
-                        r.getLng(),
-                        r.getRatingsCount() == null ? 0 : r.getRatingsCount(),
-                        r.getWilson() == null ? 0.0 : r.getWilson(),
-                        r.getAvgNorm()
-                )
-        ).toList();
-
+        List<MarkerRankingItem> items = rankingMapper.toMarkerItems(rows);
         Integer nextOffset = items.size() < limit ? null : offset + limit;
         return new FeedAndRankingResponse<>(items, nextOffset);
     }
