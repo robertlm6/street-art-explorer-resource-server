@@ -1,11 +1,10 @@
 package com.street_art_explorer.resource_server.service;
 
-import com.street_art_explorer.resource_server.dto.MarkerRankingResponse;
-import com.street_art_explorer.resource_server.dto.Period;
-import com.street_art_explorer.resource_server.dto.UserRankingResponse;
+import com.street_art_explorer.resource_server.dto.FeedAndRankingResponse;
+import com.street_art_explorer.resource_server.dto.enums.Period;
 
 public interface RankingService {
-    UserRankingResponse getUserRanking(Period period, int limit, int offset);
+    FeedAndRankingResponse getUserRanking(Period period, int limit, int offset);
 
-    MarkerRankingResponse getMarkerRanking(Period period, int limit, int offset);
+    FeedAndRankingResponse getMarkerRanking(Period period, int limit, int offset);
 }

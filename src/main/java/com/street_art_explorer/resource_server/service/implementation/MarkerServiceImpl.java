@@ -205,13 +205,9 @@ public class MarkerServiceImpl implements MarkerService {
         for (Marker m : markers) {
             PublicUserDto ownerPublic = ownersByAuthId.get(m.getAuthServerUserId());
 
-            OwnerDto ownerDto = null;
+            UserSummaryDto ownerDto = null;
             if (ownerPublic != null) {
-                ownerDto = OwnerDto.builder()
-                        .id(ownerPublic.getId())
-                        .username(ownerPublic.getUsername())
-                        .avatarUrl(ownerPublic.getAvatarUrl())
-                        .build();
+                ownerDto = new UserSummaryDto(ownerPublic.getId(), ownerPublic.getUsername(), ownerPublic.getAvatarUrl());
             }
 
             MarkerPhoto cover = coverByMarkerId.get(m.getId());

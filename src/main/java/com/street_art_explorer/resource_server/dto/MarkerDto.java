@@ -28,7 +28,7 @@ public class MarkerDto {
     private List<MarkerPhotoDto> photos;
     private Boolean ownedByMe;
 
-    private OwnerDto owner;
+    private UserSummaryDto owner;
     private Integer coverPhotoId;
     private String coverPhotoUrl;
 }

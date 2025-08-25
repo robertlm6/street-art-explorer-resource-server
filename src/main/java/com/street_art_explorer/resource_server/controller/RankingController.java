@@ -1,8 +1,7 @@
 package com.street_art_explorer.resource_server.controller;
 
-import com.street_art_explorer.resource_server.dto.MarkerRankingResponse;
-import com.street_art_explorer.resource_server.dto.Period;
-import com.street_art_explorer.resource_server.dto.UserRankingResponse;
+import com.street_art_explorer.resource_server.dto.FeedAndRankingResponse;
+import com.street_art_explorer.resource_server.dto.enums.Period;
 import com.street_art_explorer.resource_server.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +17,7 @@ public class RankingController {
     private final RankingService rankingService;
 
     @GetMapping("/users")
-    public UserRankingResponse getUsersRanking(
+    public FeedAndRankingResponse getUsersRanking(
             @RequestParam(name = "period", required = false, defaultValue = "all") String period,
             @RequestParam(name = "limit", required = false, defaultValue = "50") int limit,
             @RequestParam(name = "offset", required = false, defaultValue = "0") int offset
@@ -30,7 +29,7 @@ public class RankingController {
     }
 
     @GetMapping("/markers")
-    public MarkerRankingResponse getMarkersRanking(
+    public FeedAndRankingResponse getMarkersRanking(
             @RequestParam(defaultValue = "all") String period,
             @RequestParam(defaultValue = "50") int limit,
             @RequestParam(defaultValue = "0") int offset

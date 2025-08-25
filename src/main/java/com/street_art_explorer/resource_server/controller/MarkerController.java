@@ -37,7 +37,7 @@ public class MarkerController {
     @PatchMapping("/{id}")
     public ResponseEntity<MarkerDto> updateMarker(@AuthenticationPrincipal Jwt jwt,
                                                   @PathVariable Integer id,
-                                                  @RequestBody UpdateMarkerRequest updateMarkerRequest) {
+                                                  @Valid @RequestBody UpdateMarkerRequest updateMarkerRequest) {
 
         Integer userAuthId = jwtAuthService.requireAuthId(jwt);
         MarkerDto markerDto = markerService.updateMarker(userAuthId, id, updateMarkerRequest);
@@ -90,7 +90,7 @@ public class MarkerController {
     @PostMapping("/{id}/photos")
     public ResponseEntity<MarkerPhotoDto> addPhoto(@AuthenticationPrincipal Jwt jwt,
                                                    @PathVariable Integer id,
-                                                   @RequestBody @Valid AddPhotoRequest req) {
+                                                   @Valid @RequestBody AddPhotoRequest req) {
         Integer authId = jwtAuthService.requireAuthId(jwt);
         MarkerPhotoDto markerPhotoDto = markerPhotoService.createMarkerPhoto(authId, id, req);
         return ResponseEntity.ok(markerPhotoDto);

@@ -4,6 +4,7 @@ import com.street_art_explorer.resource_server.dto.UserAppDto;
 import com.street_art_explorer.resource_server.dto.UserAppPatchRequest;
 import com.street_art_explorer.resource_server.service.JwtAuthService;
 import com.street_art_explorer.resource_server.service.UserAppService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +30,7 @@ public class ProfileController {
 
     @PatchMapping("/profile")
     public ResponseEntity<UserAppDto> updateProfile(@AuthenticationPrincipal Jwt jwt,
-                                                    @RequestBody UserAppPatchRequest userAppPatchRequest) {
+                                                    @Valid @RequestBody UserAppPatchRequest userAppPatchRequest) {
         Integer userAuthId = jwtAuthService.requireAuthId(jwt);
         UserAppDto userAppDto = userAppService.patchUser(userAuthId, userAppPatchRequest);
         return ResponseEntity.ok(userAppDto);

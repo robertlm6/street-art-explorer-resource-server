@@ -2,15 +2,11 @@ package com.street_art_explorer.resource_server.dto;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class RateRequest {
-    @Min(1)
-    @Max(5)
-    private short score;
+public record RateRequest(
+        @NotNull
+        @Min(1)
+        @Max(5)
+        Short score) {
 }

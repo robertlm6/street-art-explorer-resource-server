@@ -2,32 +2,27 @@ package com.street_art_explorer.resource_server.dto;
 
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
 
 import java.util.Date;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-public class UserAppPatchRequest {
+public record UserAppPatchRequest(
+        @Size(max = 100)
+        String firstName,
 
-    @Size(max = 100)
-    private String firstName;
+        @Size(max = 100)
+        String lastName,
 
-    @Size(max = 100)
-    private String lastName;
+        @Past
+        Date birthDate,
 
-    @Past
-    private Date birthDate;
+        @Size(max = 1000)
+        String bio,
 
-    @Size(max = 1000)
-    private String bio;
+        @Size(max = 2048)
+        @URL
+        String avatarUrl,
 
-    @Size(max = 2048)
-    private String avatarUrl;
-
-    @Size(max = 255)
-    private String avatarPublicId;
+        @Size(max = 255)
+        String avatarPublicId) {
 }

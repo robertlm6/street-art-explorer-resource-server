@@ -1,6 +1,9 @@
 package com.street_art_explorer.resource_server.service.implementation;
 
-import com.street_art_explorer.resource_server.dto.*;
+import com.street_art_explorer.resource_server.dto.FeedAndRankingResponse;
+import com.street_art_explorer.resource_server.dto.MarkerRankingItem;
+import com.street_art_explorer.resource_server.dto.UserRankingItem;
+import com.street_art_explorer.resource_server.dto.enums.Period;
 import com.street_art_explorer.resource_server.projection.MarkerRankingRow;
 import com.street_art_explorer.resource_server.projection.UserRankingRow;
 import com.street_art_explorer.resource_server.repository.RankingRepository;
@@ -19,7 +22,7 @@ public class RankingServiceImpl implements RankingService {
     private final RankingRepository rankingRepository;
 
     @Override
-    public UserRankingResponse getUserRanking(Period period, int limit, int offset) {
+    public FeedAndRankingResponse<UserRankingItem> getUserRanking(Period period, int limit, int offset) {
         LocalDateTime since = sinceTs(period);
         List<UserRankingRow> rows = rankingRepository.findUserRanking(since, limit, offset);
 
@@ -36,11 +39,11 @@ public class RankingServiceImpl implements RankingService {
                 .toList();
 
         Integer nextOffset = items.size() < limit ? null : (offset + limit);
-        return new UserRankingResponse(items, nextOffset);
+        return new FeedAndRankingResponse<>(items, nextOffset);
     }
 
     @Override
-    public MarkerRankingResponse getMarkerRanking(Period period, int limit, int offset) {
+    public FeedAndRankingResponse<MarkerRankingItem> getMarkerRanking(Period period, int limit, int offset) {
         LocalDateTime since = sinceTs(period);
         List<MarkerRankingRow> rows = rankingRepository.findMarkerRanking(since, limit, offset);
 
@@ -57,7 +60,7 @@ public class RankingServiceImpl implements RankingService {
         ).toList();
 
         Integer nextOffset = items.size() < limit ? null : offset + limit;
-        return new MarkerRankingResponse(items, nextOffset);
+        return new FeedAndRankingResponse<>(items, nextOffset);
     }
 
     private LocalDateTime sinceTs(Period period) {

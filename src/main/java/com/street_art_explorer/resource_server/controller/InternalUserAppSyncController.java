@@ -2,6 +2,7 @@ package com.street_art_explorer.resource_server.controller;
 
 import com.street_art_explorer.resource_server.dto.UserAppDto;
 import com.street_art_explorer.resource_server.service.UserAppService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,7 @@ public class InternalUserAppSyncController {
 
     @PostMapping("/createandupdate")
     public ResponseEntity<UserAppDto> createAndUpdateUserApp(@RequestHeader(value = "X-Internal-Token", required = false) String token,
-                                                             @RequestBody UserAppDto userAppDto) {
+                                                             @Valid @RequestBody UserAppDto userAppDto) {
         if (token == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

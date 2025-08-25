@@ -2,8 +2,8 @@ package com.street_art_explorer.resource_server.converter;
 
 import com.street_art_explorer.resource_server.dto.MarkerDto;
 import com.street_art_explorer.resource_server.dto.MarkerPhotoDto;
-import com.street_art_explorer.resource_server.dto.OwnerDto;
 import com.street_art_explorer.resource_server.dto.PublicUserDto;
+import com.street_art_explorer.resource_server.dto.UserSummaryDto;
 import com.street_art_explorer.resource_server.entity.Marker;
 import com.street_art_explorer.resource_server.entity.MarkerPhoto;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +45,9 @@ public class MarkerConverter {
     }
 
     public MarkerDto markerToMarkerDto(Marker marker, List<MarkerPhoto> photos, PublicUserDto owner) {
-        OwnerDto ownerDto = null;
+        UserSummaryDto ownerDto = null;
         if (owner != null) {
-            ownerDto = OwnerDto.builder()
-                    .id(owner.getId())
-                    .username(owner.getUsername())
-                    .avatarUrl(owner.getAvatarUrl())
-                    .build();
+            ownerDto = new UserSummaryDto(owner.getId(), owner.getUsername(), owner.getAvatarUrl());
         }
 
         String coverUrl = null;

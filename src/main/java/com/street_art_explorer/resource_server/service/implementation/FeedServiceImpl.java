@@ -1,8 +1,8 @@
 package com.street_art_explorer.resource_server.service.implementation;
 
-import com.street_art_explorer.resource_server.dto.FeedResponse;
-import com.street_art_explorer.resource_server.dto.FeedType;
+import com.street_art_explorer.resource_server.dto.FeedAndRankingResponse;
 import com.street_art_explorer.resource_server.dto.MarkerFeedItem;
+import com.street_art_explorer.resource_server.dto.enums.FeedType;
 import com.street_art_explorer.resource_server.projection.MarkerFeedRow;
 import com.street_art_explorer.resource_server.repository.FeedRepository;
 import com.street_art_explorer.resource_server.service.FeedService;
@@ -18,8 +18,8 @@ public class FeedServiceImpl implements FeedService {
     private final FeedRepository feedRepository;
 
     @Override
-    public FeedResponse<MarkerFeedItem> getMarkersFeed(FeedType type, Integer limit, Integer offset, Double lat, Double lng,
-                                                       Double radiusKm, Integer days, Integer minVotes) {
+    public FeedAndRankingResponse<MarkerFeedItem> getMarkersFeed(FeedType type, Integer limit, Integer offset, Double lat, Double lng,
+                                                                 Double radiusKm, Integer days, Integer minVotes) {
         int lim = limit == null ? 20 : Math.max(1, Math.min(100, limit));
         int off = offset == null ? 0 : Math.max(0, offset);
 
@@ -70,6 +70,6 @@ public class FeedServiceImpl implements FeedService {
         }).toList();
 
         Integer nextOffset = items.size() < lim ? null : off + lim;
-        return new FeedResponse<>(items, nextOffset);
+        return new FeedAndRankingResponse<>(items, nextOffset);
     }
 }

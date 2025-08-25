@@ -1,4 +1,4 @@
-package com.street_art_explorer.resource_server.dto;
+package com.street_art_explorer.resource_server.dto.enums;
 
 public enum FeedType {
     newest, nearby, trending, top;
