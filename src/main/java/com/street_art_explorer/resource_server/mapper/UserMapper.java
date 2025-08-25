@@ -18,7 +18,8 @@ public interface UserMapper {
 
     UserSummaryDto toUserSummaryDto(UserApp userApp);
 
+    UserApp toUserApp(UserAppDto userAppDto);
+
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void applyPatch(UserAppPatchRequest patch, @MappingTarget UserApp target);
-
 }
